@@ -94,10 +94,9 @@ int main(void) {
             ball_speed.y *= -1.0f;
         }
 
-        // Handle paddle collisions
+        // Handle paddle collisions - bounce back other way but keep vertical momentum
         if (intersects(ball, player_one) || intersects(ball, player_two)) {
             ball_speed.x *= -1.0f;
-            ball_speed.y *= -1.0f;
         }
 
         // == DRAWING ==
