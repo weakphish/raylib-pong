@@ -2,4 +2,8 @@
 .idea/
 .vscode/
 cmake-build-debug/
-pong
+raylib_pong
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
