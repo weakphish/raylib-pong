@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 450
@@ -12,29 +13,44 @@
 
 #define SPEED_MODIFIER .03f
 
-typedef struct EntityStruct {
+typedef struct EntityStruct
+{
     float x;
     float y;
     bool has_moved;
 } Entity;
 
 // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection
-bool intersects(Entity circle, Entity rect) {
+bool intersects(Entity circle, Entity rect)
+{
     int circle_distance_x = abs(circle.x - rect.x);
     int circle_iistance_y = abs(circle.y - rect.y);
 
-    if (circle_distance_x > (PLAYER_WIDTH / 2 + (BALL_SIZE / 2))) { return false; }
-    if (circle_iistance_y > (PLAYER_HEIGHT / 2 + (BALL_SIZE / 2))) { return false; }
+    if (circle_distance_x > (PLAYER_WIDTH / 2 + (BALL_SIZE / 2)))
+    {
+        return false;
+    }
+    if (circle_iistance_y > (PLAYER_HEIGHT / 2 + (BALL_SIZE / 2)))
+    {
+        return false;
+    }
 
-    if (circle_distance_x <= (PLAYER_WIDTH / 2)) { return true; }
-    if (circle_iistance_y <= (PLAYER_HEIGHT / 2)) { return true; }
+    if (circle_distance_x <= (PLAYER_WIDTH / 2))
+    {
+        return true;
+    }
+    if (circle_iistance_y <= (PLAYER_HEIGHT / 2))
+    {
+        return true;
+    }
 
     int corner_distance_sq = (circle_distance_x - PLAYER_WIDTH / 2) ^ 2 + (circle_iistance_y - PLAYER_HEIGHT / 2) ^ 2;
 
     return (corner_distance_sq <= ((BALL_SIZE / 2) ^ 2));
 }
 
-int main(void) {
+int main(void)
+{
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raylib-pong");
 
     // Initalize game Data
@@ -49,35 +65,48 @@ int main(void) {
     Vector2 ball_speed = {rand() % 3, rand() % 3};
 
     // Main game loop
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
         // Log positions if changed
-        if (player_one.has_moved) {
+        if (player_one.has_moved)
+        {
             printf("Player position: (%f %f)\n", player_one.x, player_one.y);
         }
-        if (player_two.has_moved) {
+        if (player_two.has_moved)
+        {
             printf("Player position: (%f %f)\n", player_one.x, player_one.y);
         }
 
         // == GAME LOGIC ==
         // check for player 1 input
-        if (IsKeyDown(KEY_UP)) {
+        if (IsKeyDown(KEY_UP))
+        {
             player_two.y -= .05f;
             player_two.has_moved = true;
-        } else if (IsKeyDown(KEY_DOWN)) {
+        }
+        else if (IsKeyDown(KEY_DOWN))
+        {
             player_two.y += .05f;
             player_two.has_moved = true;
-        } else {
+        }
+        else
+        {
             player_two.has_moved = false;
         }
 
         // check for player 2 input
-        if (IsKeyDown(KEY_W)) {
+        if (IsKeyDown(KEY_W))
+        {
             player_one.y -= .05f;
             player_one.has_moved = true;
-        } else if (IsKeyDown(KEY_S)) {
+        }
+        else if (IsKeyDown(KEY_S))
+        {
             player_one.y += .05f;
             player_one.has_moved = true;
-        } else {
+        }
+        else
+        {
             player_one.has_moved = false;
         }
 
@@ -86,16 +115,19 @@ int main(void) {
         ball.y += ball_speed.y * SPEED_MODIFIER;
 
         // Handle wall collisions
-        if ((ball.x >= (GetScreenWidth() - (BALL_SIZE / 2.0f))) || (ball.x <= (BALL_SIZE / 2.0f))) {
+        if ((ball.x >= (GetScreenWidth() - (BALL_SIZE / 2.0f))) || (ball.x <= (BALL_SIZE / 2.0f)))
+        {
             // TODO: make this score points
             printf("point scored yay");
         }
-        if ((ball.y >= (GetScreenHeight() - (BALL_SIZE / 2.0f))) || (ball.y <= (BALL_SIZE / 2.0f))) {
+        if ((ball.y >= (GetScreenHeight() - (BALL_SIZE / 2.0f))) || (ball.y <= (BALL_SIZE / 2.0f)))
+        {
             ball_speed.y *= -1.0f;
         }
 
         // Handle paddle collisions - bounce back other way but keep vertical momentum
-        if (intersects(ball, player_one) || intersects(ball, player_two)) {
+        if (intersects(ball, player_one) || intersects(ball, player_two))
+        {
             ball_speed.x *= -1.0f;
         }
 

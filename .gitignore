@@ -2,7 +2,7 @@
 .idea/
 .vscode/
 cmake-build-debug/
-raylib_pong
+pong
 CMakeFiles/
 CMakeCache.txt
 Makefile
