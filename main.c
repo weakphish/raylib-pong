@@ -21,16 +21,17 @@ typedef struct EntityStruct
 } Entity;
 
 // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection
+// TODO: this isn't perfectly working
 bool intersects(Entity circle, Entity rect)
 {
     int circle_distance_x = abs(circle.x - rect.x);
-    int circle_iistance_y = abs(circle.y - rect.y);
+    int circle_distance_y = abs(circle.y - rect.y);
 
     if (circle_distance_x > (PLAYER_WIDTH / 2 + (BALL_SIZE / 2)))
     {
         return false;
     }
-    if (circle_iistance_y > (PLAYER_HEIGHT / 2 + (BALL_SIZE / 2)))
+    if (circle_distance_y > (PLAYER_HEIGHT / 2 + (BALL_SIZE / 2)))
     {
         return false;
     }
@@ -39,12 +40,12 @@ bool intersects(Entity circle, Entity rect)
     {
         return true;
     }
-    if (circle_iistance_y <= (PLAYER_HEIGHT / 2))
+    if (circle_distance_y <= (PLAYER_HEIGHT / 2))
     {
         return true;
     }
 
-    int corner_distance_sq = (circle_distance_x - PLAYER_WIDTH / 2) ^ 2 + (circle_iistance_y - PLAYER_HEIGHT / 2) ^ 2;
+    int corner_distance_sq = (circle_distance_x - PLAYER_WIDTH / 2) ^ 2 + (circle_distance_y - PLAYER_HEIGHT / 2) ^ 2;
 
     return (corner_distance_sq <= ((BALL_SIZE / 2) ^ 2));
 }
@@ -58,6 +59,10 @@ int main(void)
     Entity player_one = {WINDOW_WIDTH / 8.0f, WINDOW_HEIGHT / 2.0f, false};
     Entity player_two = {WINDOW_WIDTH - WINDOW_WIDTH / 8.0f, WINDOW_HEIGHT / 2.0f, false};
 
+    int player_one_score = 0;
+    int player_two_score = 0;
+    char *score_buf[50] = {};
+
     // Seed random
     srand(time(NULL));
 
@@ -67,16 +72,6 @@ int main(void)
     // Main game loop
     while (!WindowShouldClose())
     {
-        // Log positions if changed
-        if (player_one.has_moved)
-        {
-            printf("Player position: (%f %f)\n", player_one.x, player_one.y);
-        }
-        if (player_two.has_moved)
-        {
-            printf("Player position: (%f %f)\n", player_one.x, player_one.y);
-        }
-
         // == GAME LOGIC ==
         // check for player 1 input
         if (IsKeyDown(KEY_UP))
@@ -114,12 +109,22 @@ int main(void)
         ball.x += ball_speed.x * SPEED_MODIFIER;
         ball.y += ball_speed.y * SPEED_MODIFIER;
 
-        // Handle wall collisions
-        if ((ball.x >= (GetScreenWidth() - (BALL_SIZE / 2.0f))) || (ball.x <= (BALL_SIZE / 2.0f)))
+        // Check for OOB on left and right
+        // TODO: extract into method
+        if (ball.x < 0) 
         {
-            // TODO: make this score points
-            printf("point scored yay");
+            player_two_score += 1;
+            ball.x = WINDOW_WIDTH / 2.0f;
+            ball.y = WINDOW_HEIGHT / 2.0f;
         }
+        else if (ball.x > WINDOW_WIDTH) 
+        {
+            player_one_score += 1;
+            ball.x = WINDOW_WIDTH / 2.0f;
+            ball.y = WINDOW_HEIGHT / 2.0f;
+        }
+
+        // Handle ceiling collisions
         if ((ball.y >= (GetScreenHeight() - (BALL_SIZE / 2.0f))) || (ball.y <= (BALL_SIZE / 2.0f)))
         {
             ball_speed.y *= -1.0f;
@@ -135,14 +140,14 @@ int main(void)
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // Draw ball's position
+        // Draw entities
         DrawCircle(ball.x, ball.y, BALL_SIZE, GREEN);
-
-        // Draw player one (left)
         DrawRectangle(player_one.x, player_one.y, PLAYER_WIDTH, PLAYER_HEIGHT, RED);
-
-        // Draw player two (right)
         DrawRectangle(player_two.x, player_two.y, PLAYER_WIDTH, PLAYER_HEIGHT, RED);
+
+        // Draw score
+        sprintf(score_buf, "%d %d", player_one_score, player_two_score);
+        DrawText(score_buf, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4, 22, WHITE); // TODO: center this properly
 
         EndDrawing();
     }
